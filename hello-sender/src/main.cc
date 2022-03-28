@@ -3,7 +3,8 @@
 #include <RHReliableDatagram.h>
 #include <RH_RF69.h>
 #include <SPI.h>
-#include <LowPower.h>
+#include <ArduinoLowPower.h>
+
 
 #include <config.h>
 #include <radiopins.h>
@@ -18,6 +19,8 @@ RHReliableDatagram rf69_manager(rf69, MY_ADDRESS);
 
 // packet counter, we increment per transmission
 int16_t packet_num = 0;
+
+void ScheduledWakeup() {}
 
 void setup() {
   Serial.begin(9600);
@@ -40,10 +43,11 @@ void setup() {
 
 // Don't put this on the stack
 // +1 because we make c-strings with it when we print to serial
-uint8_t buf[RH_RF69_MAX_MESSAGE_LEN+1];
+uint8_t buf[RH_RF69_MAX_MESSAGE_LEN + 1];
 
 void loop() {
-  rf69.setModeIdle();  // must idle to read temperature
+  // wake the radio
+  rf69.setModeIdle(); // must idle to read temperature
   auto message =
       "Hello World #" + std::to_string(packet_num++) + " t" +
       std::to_string(rf69.temperatureRead()) + " b" +
@@ -56,9 +60,14 @@ void loop() {
   }
 
   // Send a message to the DESTINATION!
+  // will automatically move the radio into transmit mode
   if (rf69_manager.sendtoWait((uint8_t *)message.c_str(), message.length(),
                               DEST_ADDRESS)) {
     // Now wait for a reply from the server
+    if (DEBUG) {
+      Serial.println("Looking for reply");
+    }
+
     uint8_t len = sizeof(buf);
     uint8_t from;
     if (rf69_manager.recvfromAckTimeout(buf, &len, 2000, &from) && DEBUG) {
@@ -76,8 +85,14 @@ void loop() {
   } else if (DEBUG) {
     Serial.println("Sending failed (no ack)");
   }
+
+  // sleep the radio
   rf69.sleep();
-  // TODO set timer interrupt on Cortex M0
-  // LowPower.standby();
-  delay(10000);
+
+  // when not connected to the console, sleep the CPU to save battery
+  if(!DEBUG) {
+    LowPower.sleep(60000);
+  } else {
+    delay(60000);
+  }
 }
