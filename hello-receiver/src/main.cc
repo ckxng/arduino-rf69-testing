@@ -14,8 +14,9 @@ RH_RF69 rf69(RFM69_CS, RFM69_INT);
 // Class to manage message delivery and receipt, using the driver declared above
 RHReliableDatagram rf69_manager(rf69, MY_ADDRESS);
 
-// Dont put this on the stack:
-uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
+// Don't put this on the stack
+// +1 because we make c-strings with it when we print to serial
+uint8_t buf[RH_RF69_MAX_MESSAGE_LEN+1];
 
 void setup() {
   Serial.begin(9600);

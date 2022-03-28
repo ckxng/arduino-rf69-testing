@@ -38,8 +38,9 @@ void setup() {
   }
 }
 
-// Dont put this on the stack:
-uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
+// Don't put this on the stack
+// +1 because we make c-strings with it when we print to serial
+uint8_t buf[RH_RF69_MAX_MESSAGE_LEN+1];
 
 void loop() {
   rf69.setModeIdle();  // must idle to read temperature
