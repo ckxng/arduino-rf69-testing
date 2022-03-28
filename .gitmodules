@@ -1,0 +1,9 @@
+[submodule "hello-sender/lib/RadioHead"]
+	path = hello-sender/lib/RadioHead
+	url = https://github.com/adafruit/RadioHead.git
+[submodule "hello-receiver/lib/RadioHead"]
+	path = hello-receiver/lib/RadioHead
+	url = https://github.com/adafruit/RadioHead.git
+[submodule "hello-sender/lib/LowPower"]
+	path = hello-sender/lib/LowPower
+	url = https://github.com/LowPowerLab/LowPower.git
